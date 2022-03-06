@@ -93,7 +93,13 @@ function do_post(url, header, body) {
   .then((response) => {
     if (!response.ok)
       throw 'status is not 200';
-    return response.json();
+    var content_type = response.headers.get("Content-Type");
+    if( content_type.indexOf("text/") >= 0 )
+    	return response.text();
+    if( content_type.indexOf("/json") >= 0 )
+        return response.json();
+    return response.arrayBuffer();
+//    return response.json();
 //    return response.text();
 //    return response.blob();
 //    return response.arrayBuffer();
@@ -113,7 +119,13 @@ function do_get(url, header, qs) {
   .then((response) => {
     if (!response.ok)
       throw 'status is not 200';
-    return response.json();
+    var content_type = response.headers.get("Content-Type");
+    if( content_type.indexOf("text/") >= 0 )
+    	return response.text();
+    if( content_type.indexOf("/json") >= 0 )
+        return response.json();
+    return response.arrayBuffer();
+//    return response.json();
 //    return response.text();
 //    return response.blob();
 //    return response.arrayBuffer();
