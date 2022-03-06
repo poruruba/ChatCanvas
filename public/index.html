@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src * 'unsafe-inline'; media-src *; img-src * data: content: blob:;">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+  <!-- Optional theme -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="css/start.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spinkit/2.0.1/spinkit.min.css" />
+  <script src="js/methods_bootstrap.js"></script>
+  <script src="js/components_bootstrap.js"></script>
+  <script src="js/components_utils.js"></script>
+  <script src="js/vue_utils.js"></script>
+  <script src="js/gql_utils.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/vconsole/dist/vconsole.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+
+  <link rel="stylesheet" href="css/chat.css">
+  <script src="https://www.gstatic.com/assistant/interactivecanvas/api/interactive_canvas.min.js"></script>
+
+  <title>チャットキャンバス</title>
+</head>
+<body>
+<!--
+    <div id="loader-background">
+      <div class="sk-plane sk-center"></div>
+    </div>
+-->
+    <div id="top" class="container" v-bind:style="{ 'margin-top': margin + 'px' }">
+
+      <div class="line__container" style="position: relative;">
+
+          <!-- タイトル -->
+          <div class="line__title">
+            {{room}}
+            <img v-if="icon_mine" v-bind:src="'img/' + icon_mine" class="line__title__icon">
+          </div>
+      
+          <!-- ▼会話エリア scrollを外すと高さ固定解除 -->
+          <div class="line__contents scroll" style="height: 70vh;" id="el">
+      
+            <div v-for="(item, index) in chat_list" v-bind:class="`line__${item.align}`">
+              <figure v-if="item.align=='left'"><img v-bind:src="'img/' + item.character"></figure>
+              <div v-bind:class="`line__${item.align}-text`">
+                <div v-if="item.align=='left'" class="name">{{item.date}}</div>
+                <div v-if="item.message" class="text">{{item.message}}</div>
+                <div v-if="item.sign" class="stamp"><img v-bind:src="'img/' + item.sign" /></div>
+                <span v-if="item.align=='right'" class="date">{{item.date}}</span>
+              </div> 
+            </div>
+
+          </div>
+          <!--　▲会話エリア ここまで -->
+        </div>
+        <!--　▲LINE風ここまで -->
+
+        <div v-if="!connected">
+          <div class="input-group">
+            <span class="input-group-btn">
+              <button class="btn btn-default" v-on:click="append_chat">チャット</button>
+            </span>
+            <input type="text" class="form-control" v-model="message">
+          </div>
+        </div>
+        <div v-else>
+          <button class="btn btn-primary btn-lg" v-on:click="start_chat">チャット</button>
+        </div>
+        <img class="img-thumbnail pull-right" width="64" src="img/sign_sad.png" v-on:click="append_sign('sign_sad.png')">
+        <img class="img-thumbnail pull-right" width="64" src="img/sign_sleep.png" v-on:click="append_sign('sign_sleep.png')">
+        <img class="img-thumbnail pull-right" width="64" src="img/sign_happy.png" v-on:click="append_sign('sign_happy.png')">
+        <img class="img-thumbnail pull-right" width="64" src="img/sign_normal.png" v-on:click="append_sign('sign_normal.png')">
+
+
+        <modal-dialog id="character_select_dialog">
+          <div slot="content">
+            <div class="modal-header">
+                <h4 class="modal-title">キャラクターの選択</h4>
+            </div>
+            <div class="modal-body">
+              <label>ルーム名</label> {{room}}<br>
+              <label>キャラクター</label> {{icon_list[icon_selecting]}}<br>
+              <div class="text-center">
+                <button class="btn btn-default" v-on:click="icon_flip(true)">&lt;&lt;</button>
+                <img v-bind:src="'img/' + icon_list[icon_selecting]">
+                <button class="btn btn-default" v-on:click="icon_flip(false)">&gt;&gt;</button>
+              </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" v-on:click="character_select">決定</button>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- for progress-dialog -->
+        <progress-dialog v-bind:title="progress_title"></progress-dialog>
+    </div>
+
+    <script src="js/start.js"></script>
+</body>
