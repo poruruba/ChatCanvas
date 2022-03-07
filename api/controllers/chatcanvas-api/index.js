@@ -154,7 +154,7 @@ async function put_chat(room, character, message, sign)
 
 async function get_chat(room, start, end)
 {
-	if( last_post < start )
+	if( last_post > 0 && last_post < start )
 		return [];
 
 	var params_query = {
