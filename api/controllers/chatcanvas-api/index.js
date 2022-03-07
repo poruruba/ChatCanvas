@@ -8,7 +8,7 @@ const base_url_html = '【WebコンテンツのURL】';
 const TABLE_NAME = "【DynamoDBのテーブル名】";
 const LIST_LIMIT = 20;
 
-var last_post = -1;
+var last_post = 0;
 
 const {
 	conversation,
