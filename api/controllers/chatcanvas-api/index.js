@@ -8,7 +8,7 @@ const base_url_html = '【WebコンテンツのURL】';
 const TABLE_NAME = "【DynamoDBのテーブル名】";
 const LIST_LIMIT = 20;
 
-var last_post = 0;
+var last_post = -1;
 
 const {
 	conversation,
@@ -154,7 +154,7 @@ async function put_chat(room, character, message, sign)
 
 async function get_chat(room, start, end)
 {
-	if( last_post > 0 && last_post < start )
+	if( last_post >= 0 && last_post < start )
 		return [];
 
 	var params_query = {
